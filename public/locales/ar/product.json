@@ -1,0 +1,21 @@
+{
+    "avilabletiy":"موجود",
+    "product_type":"نوع النتج",
+    "Color":"اللون",
+    "Size":"الحجم",
+    "Harry_up":"اسرع",
+    "left":"باقي",
+    "add_to_card":"اضف الي السلة",
+    "buy_now":"اشتري الان",
+    "total":"السعر الاجمالي",
+    "ask_expert":"اسأل الخبراء",
+    "Discription":"الوصف",
+    "Related_Product":"منتجات مشابهة",
+    "backend_err":"خطأ في السرفير",
+    "in_stock":"في المخزن",
+    "view_all":"عرض الكل",
+    "popular_items":"منتجات اكثر شيوعا",
+    "new_items":"اجد النتجات",
+    "sales_items":"اكبر العروض",
+    "read_more":"اقرأ المزيد"
+}

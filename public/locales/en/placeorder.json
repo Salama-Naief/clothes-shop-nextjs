@@ -1,0 +1,25 @@
+{
+    "placeorder":"PlaceOreder",
+    "shipping_data":"shipping data",
+    "payment_method":"payment method",
+    "items":"items",
+    "price":"price",
+    "tax":"tax",
+    "shipping":"shipping",
+    "total_cost":"totalCost",
+    "order":"order",
+    "back":"back",
+    "offer":"offer",
+    "size":"size",
+    "color":"color",
+    "name":"name",
+    "product":"product",
+    "status":"status",
+    "delevered":"delevers",
+    "not_delevers_yet":"not delevers yet",
+    "orderedAt":"orderedAt",
+    "payed":"Payed",
+    "not_payed_yet":"not payed yet",
+    "pay":"pay"
+    
+}
