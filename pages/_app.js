@@ -26,7 +26,11 @@ function MyApp({ Component, pageProps }) {
           className={`font-serif `}
           style={{ direction: i18n.language === "ar" ? "rtl" : "ltr" }}
         >
-          <NextNProgress color="#ff8700" />
+          <NextNProgress
+            color="#ff8700"
+            delay={300}
+            options={{ showSpinner: false }}
+          />
           <Component {...pageProps} />
         </div>
       </StoreProvider>

@@ -238,7 +238,7 @@ export default function Order({ order, pages, errMsg }) {
   );
 }
 
-/*export async function getStaticPaths({ locales }) {
+export async function getStaticPaths({ locales }) {
   const res = await fetch(`${API_URL}/api/orders`);
   const orders = await res.json();
 
@@ -254,19 +254,20 @@ export default function Order({ order, pages, errMsg }) {
   }
   return {
     paths,
-    fallback: false,
+    fallback: true,
   };
-}*/
-export async function getServerSideProps(ctx) {
+}
+export async function getStaticProps(ctx) {
   const { id } = ctx.params;
-  console.group("id", id);
   const locale = ctx.locale;
   try {
     const res = await fetch(
       `${API_URL}/api/orders/${parseInt(id)}?populate[products][populate]=*`
     );
     const order = await res.json();
-    const pagesRes = await fetch(`${API_URL}/api/pages?populate=*`);
+    const pagesRes = await fetch(
+      `${API_URL}/api/pages?locale=${locale}&populate=*`
+    );
     const pages = await pagesRes.json();
 
     return {
@@ -276,6 +277,7 @@ export async function getServerSideProps(ctx) {
         errMsg: false,
         ...(await serverSideTranslations(locale, ["common", "placeorder"])),
       },
+      revalidate: 10,
     };
   } catch (err) {
     return {

@@ -89,13 +89,12 @@ export default function Placeorder({ pages }) {
       });
 
       const orderData = await res.json();
-      console.log("order data", orderData);
-      console.log("user", state.user);
+
       if (orderData.error) {
         setErrMessage(orderData.error.message);
       }
-      if (orderData.data) {
-        router.push(`/order/${orderData.data.id}`);
+      if (orderData.response) {
+        router.push(`/order/${orderData.response.id}`);
         setErrMessage("");
         dispatch({ type: "CLEAR_CARITEMS" });
         dispatch({ type: "ORDER_COMPLEATE" });
@@ -235,6 +234,7 @@ export async function getStaticProps({ locale }) {
         errMsg: false,
         ...(await serverSideTranslations(locale, ["common", "placeorder"])),
       },
+      revalidate: 10,
     };
   } catch (err) {
     return {

@@ -283,32 +283,38 @@ function SingleProduct({ shoDetail, product, productId, pages, errMsg }) {
   );
 }
 
-/*export async function getStaticPaths({ locales }) {
-  const res = await fetch(`${API_URL}/api/products`);
-  const data = await res.json();
+export async function getStaticPaths({ locales }) {
   const paths = [];
-  data.data.map((product) => {
+
+  const resEn = await fetch(`${API_URL}/api/products?locale=${locales[0]}`);
+  const dataEn = await resEn.json();
+  const resAr = await fetch(`${API_URL}/api/products?locale=${locales[1]}`);
+  const dataAr = await resAr.json();
+
+  const pages = [...dataEn.data, ...dataAr.data];
+
+  pages.map((product) => {
     paths.push(
       { params: { slug: product.attributes.slug }, locale: locales[1] },
       { params: { slug: product.attributes.slug }, locale: locales[0] }
     );
   });
 
+  console.log("paths", paths);
   return {
     paths,
-    fallback: false,
+    fallback: true,
   };
-}*/
-export async function getServerSideProps(ctx) {
+}
+export async function getStaticProps(ctx) {
+  const locale = ctx.locale;
   try {
     const { slug } = ctx.params;
-    const locale = ctx.locale;
     const pagesRes = await fetch(
       `${API_URL}/api/pages?locale=${locale}&populate=*`
     );
     const pages = await pagesRes.json();
 
-    let relatedProduct = [];
     const productRes = await fetch(
       `${API_URL}/api/products?locale=${locale}&filters[slug][$eq]=${slug}&&populate=*`
     );
@@ -328,11 +334,13 @@ export async function getServerSideProps(ctx) {
         errMsg: false,
         ...(await serverSideTranslations(locale, ["common", "product"])),
       },
+      revalidate: 10,
     };
   } catch (err) {
     return {
       props: {
         errMsg: true,
+        ...(await serverSideTranslations(locale, ["common", "product"])),
       },
     };
   }

@@ -362,14 +362,8 @@ function Products({ products, pages, errMsg, randumImg }) {
   );
 }
 
-/*export async function getStaticPaths({ locales }) {
+export async function getStaticPaths({ locales }) {
   try {
-    const pageRes = await fetch(`${API_URL}/api/pages`);
-    const pages = await pageRes.json();
-    const colectinRes = await fetch(`${API_URL}/api/colection-of-products`);
-    const colections = await colectinRes.json();
-    const categoryRes = await fetch(`${API_URL}/api/categories`);
-    const categories = await categoryRes.json();
     const pageCollections = [];
     const pageCategories = [];
     const allItems = [];
@@ -377,7 +371,36 @@ function Products({ products, pages, errMsg, randumImg }) {
     const salesItems = [];
     const popularItems = [];
     const othePaths = [];
-    colections.data.map((collection) => {
+
+    const pageResEn = await fetch(`${API_URL}/api/pages?locale=${locales[0]}`);
+    const pagesEn = await pageResEn.json();
+    const pageResAr = await fetch(`${API_URL}/api/pages?locale=${locales[1]}`);
+    const pagesAr = await pageResAr.json();
+    const pages = [...pagesEn.data, ...pagesAr.data];
+
+    const colectinResEn = await fetch(
+      `${API_URL}/api/colection-of-products?locale=${locales[0]}`
+    );
+    const collectionsEn = await colectinResEn.json();
+    const colectinResAr = await fetch(
+      `${API_URL}/api/colection-of-products?locale=${locales[1]}`
+    );
+    const collectionsAr = await colectinResAr.json();
+
+    const collections = [...collectionsEn.data, ...collectionsAr.data];
+
+    const categoryResEn = await fetch(
+      `${API_URL}/api/categories?locale=${locales[0]}`
+    );
+    const categoriesEn = await categoryResEn.json();
+    const categoryResAr = await fetch(
+      `${API_URL}/api/categories?locale=${locales[1]}`
+    );
+    const categoriesAr = await categoryResAr.json();
+
+    const categories = [...categoriesEn.data, ...categoriesAr.data];
+
+    collections.map((collection) => {
       locales.map((locale) => {
         pageCollections.push({
           params: { genre: `collections-${collection.attributes.slug}` },
@@ -386,7 +409,7 @@ function Products({ products, pages, errMsg, randumImg }) {
       });
     });
 
-    categories.data.map((category) => {
+    categories.map((category) => {
       locales.map((locale) => {
         pageCategories.push({
           params: { genre: `category-${category.attributes.slug}` },
@@ -395,7 +418,7 @@ function Products({ products, pages, errMsg, randumImg }) {
       });
     });
 
-    pages.data.map((page) => {
+    pages.map((page) => {
       locales.map((locale) => {
         allItems.push({
           params: { genre: `all-${page.attributes.slug}` },
@@ -435,7 +458,7 @@ function Products({ products, pages, errMsg, randumImg }) {
 
     return {
       paths,
-      fallback: false,
+      fallback: true,
     };
   } catch (err) {
     return {
@@ -443,8 +466,8 @@ function Products({ products, pages, errMsg, randumImg }) {
       fallback: false,
     };
   }
-}*/
-export async function getServerSideProps(ctx) {
+}
+export async function getStaticProps(ctx) {
   try {
     const { genre } = ctx.params;
     const locale = ctx.locale;
@@ -531,6 +554,7 @@ export async function getServerSideProps(ctx) {
         errMsg: false,
         ...(await serverSideTranslations(locale, ["common", "product"])),
       },
+      revalidate: 10,
     };
   } catch (err) {
     return {
