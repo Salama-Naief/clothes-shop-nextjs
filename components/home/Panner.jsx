@@ -54,7 +54,7 @@ const Panner = ({ carousal }) => {
                     {item.attributes.desc}
                   </div>
                   <Link
-                    href={`/products/collections-${item.attributes.collection.data[0].attributes.slug}`}
+                    href={`/products/collections-${item.attributes.collections.data[0].attributes.slug}`}
                   >
                     <a>
                       <div className="bg-primary text-white md:py-4 py-1 md:text-xl text-center w-full md:font-bold">

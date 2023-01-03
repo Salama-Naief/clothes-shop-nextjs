@@ -136,7 +136,7 @@ function Home({
           <p
             className="text-gray-900 mx-4 mt-2 "
             dangerouslySetInnerHTML={{
-              __html: shoDetail.attributes.aboutUs,
+              __html: shoDetail && shoDetail.attributes.aboutUs,
             }}
           />
         </div>
@@ -180,12 +180,12 @@ export async function getStaticProps({ locale }) {
     const shoDetail = await shoDetailRes.json();
     return {
       props: {
-        pages: pages.data || [],
-        newProducts: newproducts.data || [],
-        popularProducts: popularProducts.data || [],
-        offerProducts: offerProducts.data || [],
-        shoDetail: shoDetail.data,
-        landigPage: landigPage.data,
+        pages: pages.data ? pages.data : [],
+        newProducts: newproducts.data ? newproducts.data : [],
+        popularProducts: popularProducts.data ? popularProducts.data : [],
+        offerProducts: offerProducts.data ? offerProducts.data : [],
+        shoDetail: shoDetail.data ? shoDetail.data : null,
+        landigPage: landigPage.data ? landigPage.data : [],
         errMsg: false,
         ...(await serverSideTranslations(locale, ["common", "product"])),
       },
