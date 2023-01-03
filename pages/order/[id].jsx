@@ -238,23 +238,26 @@ export default function Order({ order, pages, errMsg }) {
   );
 }
 
-export async function getStaticPaths({ locales }) {
+/*export async function getStaticPaths({ locales }) {
   const res = await fetch(`${API_URL}/api/orders`);
-  const data = await res.json();
+  const orders = await res.json();
 
   const paths = [];
-  data.data.map((order) => {
-    locales.map((locale) => {
-      paths.push({ params: { id: `${order.id}` }, locale });
+  if (orders?.data?.length > 0) {
+    orders.data.map((order) => {
+      locales.map((locale) => {
+        paths.push({ params: { id: `${order.id}` }, locale });
+      });
     });
-  });
-
+  } else {
+    paths.push({ params: { id: `` } });
+  }
   return {
     paths,
     fallback: false,
   };
-}
-export async function getStaticProps(ctx) {
+}*/
+export async function getServerSideProps(ctx) {
   const { id } = ctx.params;
   console.group("id", id);
   const locale = ctx.locale;
