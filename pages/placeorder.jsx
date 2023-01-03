@@ -59,7 +59,7 @@ export default function Placeorder({ pages }) {
   const handleOrder = async () => {
     const productsIds = cartData.map((item) => item.product.id);
     console.log("productsIds", productsIds);
-    if (state.user) {
+    if (state.user && cartData.length > 0) {
       const order = {
         data: {
           shippingData: shipping,
@@ -73,6 +73,8 @@ export default function Placeorder({ pages }) {
           deleverd: false,
           payedAt: null,
           deleverdAt: null,
+          user: user.user.id,
+          products: productsIds,
         },
       };
 
@@ -93,26 +95,7 @@ export default function Placeorder({ pages }) {
         setErrMessage(orderData.error.message);
       }
       if (orderData.data) {
-        //router.push(`/order/${orderData.data.id}`);
-        const resUpdatated = await fetch(
-          `${API_URL}/api/orders/${orderData.data.id}`,
-          {
-            method: "PUT",
-            headers: {
-              accept: "application/json",
-              "Content-type": "application/json",
-              authorization: `Bearer ${state.user.jwt}`,
-            },
-            body: JSON.stringify({
-              data: {
-                user: user.user.id,
-                products: [parseInt(35), parseInt(34)],
-              },
-            }),
-          }
-        );
-        const orderUpdated = await resUpdatated.json();
-        console.log("orderUpdated", orderUpdated);
+        router.push(`/order/${orderData.data.id}`);
         setErrMessage("");
         dispatch({ type: "CLEAR_CARITEMS" });
         dispatch({ type: "ORDER_COMPLEATE" });
