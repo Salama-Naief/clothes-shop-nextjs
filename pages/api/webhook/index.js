@@ -1,5 +1,5 @@
 import Stripe from "stripe";
-import { buffer } from "micro";
+//import { buffer } from "micro";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export const config = {
@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   if (req.method === "POST") {
     let event;
     try {
-      const rawBody = await buffer(req);
+      //const rawBody = await buffer(req);
       const signature = req.headers["stripe-signature"];
       event = stripe.webhooks.constructEvent(
         rawBody.toString(),
