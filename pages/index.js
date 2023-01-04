@@ -145,44 +145,44 @@ function Home({
     </Layout>
   );
 }
-
+//getServerSideProps
 export async function getServerSideProps({ locale }) {
   try {
     //new products
-    const newproducts = await getData(
-      "products",
+    /*const newproducts = await getData(
+      "productss",
       "sort=publishedAt:desc&populate=*&pagination[limit]=7",
       locale
     );
     // popular products
     const popularProducts = await getData(
-      "products",
+      "productss",
       "filters[rate][$gt]=0&sort=rate:desc&populate=*&pagination[limit]=7",
       locale
     );
     //offer products
     const offerProducts = await getData(
-      "products",
+      "productss",
       "filters[offer][$gt]=0&sort=offer:desc&populate=*&pagination[limit]=7",
       locale
     );
     //landing page
-    const landigPage = await getData("landingpages", "populate=%2A", locale);
-    //pages
+    const landigPage = await getData("landingpagess", "populate=%2A", locale);
+    //pages*/
     const pages = await getData("pages", "populate=*", locale);
 
     //shop detais
 
-    const shoDetail = await getShopDetails(locale);
+    // const shoDetail = await getShopDetails(locale);
 
     return {
       props: {
         pages: pages,
-        newProducts: newproducts,
-        popularProducts: popularProducts,
-        offerProducts: offerProducts,
-        shoDetail: shoDetail,
-        landigPage: landigPage,
+        newProducts: [],
+        popularProducts: [],
+        offerProducts: [],
+        shoDetail: [],
+        landigPage: null,
         errMsg: false,
         ...(await serverSideTranslations(locale, ["common", "product"])),
       },
