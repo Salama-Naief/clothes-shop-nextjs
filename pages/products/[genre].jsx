@@ -362,7 +362,7 @@ function Products({ products, pages, errMsg, randumImg }) {
   );
 }
 
-export async function getStaticPaths({ locales }) {
+/*export async function getStaticPaths({ locales }) {
   try {
     const pageCollections = [];
     const pageCategories = [];
@@ -466,11 +466,11 @@ export async function getStaticPaths({ locales }) {
       fallback: false,
     };
   }
-}
-export async function getStaticProps(ctx) {
+}*/
+export async function getServerSideProps(ctx) {
+  const { genre } = ctx.params;
+  const locale = ctx.locale;
   try {
-    const { genre } = ctx.params;
-    const locale = ctx.locale;
     const ramdumImgRes = await fetch(
       `${API_URL}/api/locale=${locale}&randum-image?populate=*`
     );

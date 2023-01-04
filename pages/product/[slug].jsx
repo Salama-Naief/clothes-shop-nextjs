@@ -283,7 +283,7 @@ function SingleProduct({ shoDetail, product, productId, pages, errMsg }) {
   );
 }
 
-export async function getStaticPaths({ locales }) {
+/*export async function getStaticPaths({ locales }) {
   const paths = [];
 
   const resEn = await fetch(`${API_URL}/api/products?locale=${locales[0]}`);
@@ -304,11 +304,11 @@ export async function getStaticPaths({ locales }) {
     paths,
     fallback: true,
   };
-}
-export async function getStaticProps(ctx) {
+}*/
+export async function getServerSideProps(ctx) {
   const locale = ctx.locale;
+  const { slug } = ctx.params;
   try {
-    const { slug } = ctx.params;
     const pagesRes = await fetch(
       `${API_URL}/api/pages?locale=${locale}&populate=*`
     );
