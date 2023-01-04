@@ -238,7 +238,7 @@ export default function Order({ order, pages, errMsg }) {
   );
 }
 
-export async function getStaticPaths({ locales }) {
+/*export async function getStaticPaths({ locales }) {
   const res = await fetch(`${API_URL}/api/orders`);
   const orders = await res.json();
 
@@ -256,8 +256,8 @@ export async function getStaticPaths({ locales }) {
     paths,
     fallback: true,
   };
-}
-export async function getStaticProps(ctx) {
+}*/
+export async function getServerSideProps(ctx) {
   const { id } = ctx.params;
   const locale = ctx.locale;
   try {
