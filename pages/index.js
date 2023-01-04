@@ -10,6 +10,7 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { getData, getShopDetails } from "../lib/api/getData";
 
 function Home({
   pages,
@@ -145,51 +146,46 @@ function Home({
   );
 }
 
-export async function getStaticProps({ locale }) {
-  console.log("locale", locale);
+export async function getServerSideProps({ locale }) {
   try {
-    const newRes = await fetch(
-      `${API_URL}/api/products?locale=${locale}&sort=publishedAt:desc&populate=*&pagination[limit]=7`
+    //new products
+    const newproducts = await getData(
+      "products",
+      "sort=publishedAt:desc&populate=*&pagination[limit]=7",
+      locale
     );
-    const newproducts = await newRes.json();
     // popular products
-    const popularRes = await fetch(
-      `${API_URL}/api/products?locale=${locale}&filters[rate][$gt]=0&sort=rate:desc&populate=*&pagination[limit]=7`
+    const popularProducts = await getData(
+      "products",
+      "filters[rate][$gt]=0&sort=rate:desc&populate=*&pagination[limit]=7",
+      locale
     );
-    const popularProducts = await popularRes.json();
     //offer products
-    const offerRes = await fetch(
-      `${API_URL}/api/products?locale=${locale}&filters[offer][$gt]=0&sort=offer:desc&populate=*&pagination[limit]=7`
+    const offerProducts = await getData(
+      "products",
+      "filters[offer][$gt]=0&sort=offer:desc&populate=*&pagination[limit]=7",
+      locale
     );
-    const offerProducts = await offerRes.json();
-
-    const landingRes = await fetch(
-      `${API_URL}/api/landingpages?locale=${locale}&populate=%2A`
-    );
-    const landigPage = await landingRes.json();
+    //landing page
+    const landigPage = await getData("landingpages", "populate=%2A", locale);
     //pages
-    const pagesRes = await fetch(
-      `${API_URL}/api/pages?locale=${locale}&populate=*`
-    );
-    const pages = await pagesRes.json();
+    const pages = await getData("pages", "populate=*", locale);
 
     //shop detais
-    const shoDetailRes = await fetch(
-      `${API_URL}/api/shop-detail?locale=${locale}`
-    );
-    const shoDetail = await shoDetailRes.json();
+
+    const shoDetail = await getShopDetails(locale);
+
     return {
       props: {
-        pages: pages.data ? pages.data : [],
-        newProducts: newproducts.data ? newproducts.data : [],
-        popularProducts: popularProducts.data ? popularProducts.data : [],
-        offerProducts: offerProducts.data ? offerProducts.data : [],
-        shoDetail: shoDetail.data ? shoDetail.data : null,
-        landigPage: landigPage.data ? landigPage.data : [],
+        pages: pages,
+        newProducts: newproducts,
+        popularProducts: popularProducts,
+        offerProducts: offerProducts,
+        shoDetail: shoDetail,
+        landigPage: landigPage,
         errMsg: false,
         ...(await serverSideTranslations(locale, ["common", "product"])),
       },
-      revalidate: 10,
     };
   } catch (err) {
     return {

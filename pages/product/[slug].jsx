@@ -300,7 +300,6 @@ export async function getStaticPaths({ locales }) {
     );
   });
 
-  console.log("paths", paths);
   return {
     paths,
     fallback: true,

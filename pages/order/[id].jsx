@@ -24,7 +24,7 @@ export default function Order({ order, pages, errMsg }) {
         currency: "usd",
         product_data: {
           images: item.attributes.productImg.data.map(
-            (img) => API_URL + img.attributes.url
+            (img) => img.attributes.url
           ),
           name: item.attributes.name,
           description: item.attributes.description,
