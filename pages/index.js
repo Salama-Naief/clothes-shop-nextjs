@@ -149,7 +149,7 @@ function Home({
 export async function getServerSideProps({ locale }) {
   try {
     //new products
-    /*const newproducts = await getData(
+    const newproducts = await getData(
       "productss",
       "sort=publishedAt:desc&populate=*&pagination[limit]=7",
       locale
@@ -168,7 +168,7 @@ export async function getServerSideProps({ locale }) {
     );
     //landing page
     const landigPage = await getData("landingpagess", "populate=%2A", locale);
-    //pages*/
+    //pages
     const pages = await getData("pages", "populate=*", locale);
 
     //shop detais

@@ -29,6 +29,7 @@
     "react-redux": "^8.0.2",
     "react-slick": "^0.29.0",
     "react-spinners": "^0.13.4",
+    "sharp": "^0.31.3",
     "shortid": "^2.2.16",
     "slick-carousel": "^1.8.1",
     "stripe": "^11.5.0"
