@@ -173,16 +173,16 @@ export async function getServerSideProps({ locale }) {
 
     //shop detais
 
-    // const shoDetail = await getShopDetails(locale);
+    const shoDetail = await getShopDetails(locale);
 
     return {
       props: {
         pages: pages,
-        newProducts: [],
-        popularProducts: [],
-        offerProducts: [],
-        shoDetail: [],
-        landigPage: null,
+        newProducts: newproducts,
+        popularProducts: popularProducts,
+        offerProducts: offerProducts,
+        shoDetail: shoDetail,
+        landigPage: landigPage,
         errMsg: false,
         ...(await serverSideTranslations(locale, ["common", "product"])),
       },

@@ -333,7 +333,6 @@ export async function getServerSideProps(ctx) {
         errMsg: false,
         ...(await serverSideTranslations(locale, ["common", "product"])),
       },
-      revalidate: 10,
     };
   } catch (err) {
     return {

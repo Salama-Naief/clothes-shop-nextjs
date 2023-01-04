@@ -277,7 +277,6 @@ export async function getServerSideProps(ctx) {
         errMsg: false,
         ...(await serverSideTranslations(locale, ["common", "placeorder"])),
       },
-      revalidate: 10,
     };
   } catch (err) {
     return {
