@@ -150,24 +150,24 @@ export async function getServerSideProps({ locale }) {
   try {
     //new products
     const newproducts = await getData(
-      "productss",
+      "products",
       "sort=publishedAt:desc&populate=*&pagination[limit]=7",
       locale
     );
     // popular products
     const popularProducts = await getData(
-      "productss",
+      "products",
       "filters[rate][$gt]=0&sort=rate:desc&populate=*&pagination[limit]=7",
       locale
     );
     //offer products
     const offerProducts = await getData(
-      "productss",
+      "products",
       "filters[offer][$gt]=0&sort=offer:desc&populate=*&pagination[limit]=7",
       locale
     );
     //landing page
-    const landigPage = await getData("landingpagess", "populate=%2A", locale);
+    const landigPage = await getData("landingpages", "populate=%2A", locale);
     //pages
     const pages = await getData("pages", "populate=*", locale);
 

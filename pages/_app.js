@@ -19,7 +19,9 @@ function MyApp({ Component, pageProps }) {
   }
   return (
     <PayPalScriptProvider
-      options={{ "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID }}
+      options={{
+        "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
+      }}
     >
       <StoreProvider>
         <div

@@ -17,21 +17,57 @@ export default function Order({ order, pages, errMsg }) {
   const { t } = useTranslation();
   const [errMessage, setErrMessage] = useState("");
   const [pay, setPay] = useState(true);
+  //number of items
+  const numItems = order?.attributes.orderProducts?.data.reduce(
+    (a, c) => a + c.attributes.quantity,
+    0
+  );
+  //products price
+  const productsPrice = order?.attributes.orderProducts?.data.reduce(
+    (sum, item) => {
+      const quantity = parseInt(item.attributes.quantity);
 
+      const price =
+        item.attributes.product.data.attributes.offer > 0
+          ? item.attributes.product.data.attributes.offer * quantity
+          : item.attributes.product.data.attributes.price * quantity;
+      return sum + parseFloat(price);
+    },
+    0
+  );
+  // total price of products price and tax cost and shipping cost
+  console.log(
+    "shippingCost",
+    order?.attributes.shippingCost,
+    order?.attributes.texCost
+  );
+  const totalCost =
+    parseFloat(productsPrice) +
+    parseFloat(order?.attributes.shippingCost) +
+    parseFloat(order?.attributes.texCost);
+  //stripeepayments
   const handlePayment = async () => {
-    const orderData = order?.attributes.products?.data.map((item) => ({
+    const s =
+      order?.attributes.orderProducts?.data[0].attributes.product.data.attributes.productImg.data.map(
+        (img) => img.attributes.url
+      );
+    console.log("imag url", s);
+    const orderData = order?.attributes.orderProducts?.data.map((item) => ({
       price_data: {
         currency: "usd",
         product_data: {
-          images: item.attributes.productImg.data.map(
-            (img) => img.attributes.url
+          images: item.attributes.product.data.attributes.productImg.data.map(
+            (img) => `${API_URL}/img.attributes.url`
           ),
-          name: item.attributes.name,
-          description: item.attributes.description,
+          name: item.attributes.product.data.attributes.name,
+          description: item.attributes.product.data.attributes.description,
         },
-        unit_amount: item.attributes.price * 100,
+        unit_amount:
+          item.attributes.product.data.attributes.offer > 0
+            ? item.attributes.product.data.attributes.offer * 100
+            : item.attributes.product.data.attributes.price * 100,
       },
-      quantity: 1,
+      quantity: item.attributes.quantity,
     }));
 
     const { data } = await axios.post("/api/checkout_sessions", {
@@ -43,6 +79,23 @@ export default function Order({ order, pages, errMsg }) {
     stripe.redirectToCheckout({ sessionId: data.id });
   };
 
+  //paypal payments create oreder function
+  const createPayPalOrder = async () => {
+    const response = await axios.post("/api/paypal/createOrder", {
+      orderId: order.id,
+    });
+    console.log("response", response);
+    return response.data.orderID;
+  };
+  //paypal payments on approve function
+  const onApprove = async (data) => {
+    console.log("response data", data);
+    const res = await axios.post("/api/paypal/captureOrder", data);
+    console.log("response ffff===>", res);
+    return res;
+  };
+
+  console.log("orderProducts?.data", order);
   return (
     <Layout title={"order page"} pages={pages}>
       {errMsg ? (
@@ -113,6 +166,7 @@ export default function Order({ order, pages, errMsg }) {
                 <thead className="border-b border-gray-400">
                   <tr className="">
                     <th className="py-4 text-center">{t("placeorder:name")}</th>
+                    <th>{t("placeorder:quantity")}</th>
                     <th>{t("placeorder:color")}</th>
                     <th>{t("placeorder:size")}</th>
                     <th>{t("placeorder:price")}</th>
@@ -120,7 +174,7 @@ export default function Order({ order, pages, errMsg }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {order?.attributes.products?.data.map((item) => (
+                  {order?.attributes.orderProducts?.data?.map((item) => (
                     <tr key={item.id} className="border-b border-gray-400">
                       <td className="py-2">
                         <Link href={`/product/${"item.slug"}`}>
@@ -129,8 +183,9 @@ export default function Order({ order, pages, errMsg }) {
                               <div className="w-1/3 h-24 overflow-hidden relative bg-gray-100">
                                 <Image
                                   src={
-                                    item.attributes.productImg.data[0]
-                                      .attributes.formats.thumbnail.url
+                                    item.attributes.product.data.attributes
+                                      .productImg.data[0].attributes.formats
+                                      .thumbnail.url
                                   }
                                   layout="fill"
                                   loading="eager"
@@ -146,20 +201,24 @@ export default function Order({ order, pages, errMsg }) {
                           </a>
                         </Link>
                       </td>
-                      <td>{item.attributes.color}</td>
-                      <td>{item.attributes.size}</td>
+                      <td>{item.attributes.quantity}</td>
+                      <td>{item.attributes.product.data.attributes.color}</td>
+                      <td>{item.attributes.product.data.attributes.size}</td>
                       <td
                         className={`${
-                          item.attributes.offer > 0
+                          item.attributes.product.data.attributes.offer > 0
                             ? "text-gray-400 line-through"
                             : "text-gray-900"
                         } `}
                       >
-                        ${item.attributes.price}
+                        ${item.attributes.product.data.attributes.price}
                       </td>
-                      {item.attributes.offer > 0 && (
+                      {item.attributes.product.data.attributes.offer > 0 && (
                         <td className="text-secondary">
-                          ${item.attributes.offer ? item.attributes.offer : 0}
+                          $
+                          {item.attributes.product.data.attributes.offer
+                            ? item.attributes.product.data.attributes.offer
+                            : 0}
                         </td>
                       )}
                     </tr>
@@ -171,12 +230,12 @@ export default function Order({ order, pages, errMsg }) {
               <div className="flex justify-between my-4">
                 <div className="font-semibold">{t("placeorder:items")}</div>
                 <div className="">
-                  ({order.attributes.numOfItems}){t("placeorder:items")}
+                  ({numItems}){t("placeorder:items")}
                 </div>
               </div>
               <div className="flex justify-between my-4">
                 <div className="font-semibold">{t("placeorder:price")}</div>
-                <div className="">${order.attributes.price}</div>
+                <div className="">${productsPrice}</div>
               </div>
               <div className="flex justify-between my-4">
                 <div className="font-semibold">{t("placeorder:tax")}</div>
@@ -190,9 +249,7 @@ export default function Order({ order, pages, errMsg }) {
                 <div className="font-semibold">
                   {t("placeorder:total_cost")}
                 </div>
-                <div className="text-secondary">
-                  ${order.attributes.totalPrice}
-                </div>
+                <div className="text-secondary">${totalCost}</div>
               </div>
 
               <div>
@@ -203,24 +260,8 @@ export default function Order({ order, pages, errMsg }) {
                   {t("placeorder:pay")}
                 </button>
                 <PayPalButtons
-                  createOrder={(data, actions) => {
-                    return actions.order.create({
-                      intent: "CAPTURE",
-                      purchase_units: [
-                        {
-                          amount: {
-                            value: "1.99",
-                          },
-                        },
-                      ],
-                    });
-                  }}
-                  onApprove={(data, actions) => {
-                    return actions.order.capture().then((details) => {
-                      const name = details.payer.name.given_name;
-                      alert(`Transaction completed by ${name}`);
-                    });
-                  }}
+                  createOrder={createPayPalOrder}
+                  onApprove={onApprove}
                 />
                 <Link href={`/payment`} passHref>
                   <a>
@@ -258,18 +299,18 @@ export default function Order({ order, pages, errMsg }) {
   };
 }*/
 export async function getServerSideProps(ctx) {
-  const { id } = ctx.params;
   const locale = ctx.locale;
   try {
+    const id = ctx.params?.id;
     const res = await fetch(
-      `${API_URL}/api/orders/${parseInt(id)}?populate[products][populate]=*`
+      `${API_URL}/api/orders/${id}?populate[orderProducts][populate][product][populate]=*`
     );
     const order = await res.json();
     const pagesRes = await fetch(
       `${API_URL}/api/pages?locale=${locale}&populate=*`
     );
     const pages = await pagesRes.json();
-
+    console.log("order", order.data);
     return {
       props: {
         order: order.data,

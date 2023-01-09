@@ -18,6 +18,10 @@ export default function Placeorder({ pages }) {
     cart: { cartItems, shipping, paymanetMethod },
   } = state;
   const { t } = useTranslation();
+  const [loading, setLoading] = useState(false);
+  const [cartData, setCartData] = useState([]);
+  const [errMessage, setErrMessage] = useState("");
+
   const round = (c) => Math.round(c);
   const price = cartItems
     ? round(
@@ -34,8 +38,6 @@ export default function Placeorder({ pages }) {
   const taxCost = round(price * (20 / 100));
   const totalCost =
     parseInt(price) + parseInt(shippingCost) + parseInt(taxCost);
-  const [cartData, setCartData] = useState([]);
-  const [errMessage, setErrMessage] = useState("");
   useEffect(() => {
     if (!shipping) {
       router.push("/shipping");
@@ -55,11 +57,22 @@ export default function Placeorder({ pages }) {
     }));
     setCartData(cartItemsData);
   }, [shipping, cartItems]);
+  console.log("cartData", cartItems);
 
   const handleOrder = async () => {
-    const productsIds = cartData.map((item) => item.product.id);
+    const productsIds = cartItems?.map((item) => {
+      if (item.numberInStock > 0) {
+        return {
+          id: item.id,
+          quantity: item.quantity,
+          name: item.name,
+        };
+      } else {
+        alert(item.name + " is out of stock");
+      }
+    });
     console.log("productsIds", productsIds);
-    if (state.user && cartData.length > 0) {
+    if (state.user && productsIds.length > 0) {
       const order = {
         data: {
           shippingData: shipping,
@@ -74,10 +87,10 @@ export default function Placeorder({ pages }) {
           payedAt: null,
           deleverdAt: null,
           user: user.user.id,
-          products: productsIds,
+          productsData: productsIds,
         },
       };
-
+      setLoading(true);
       const res = await fetch(`${API_URL}/api/orders`, {
         method: "POST",
         headers: {
@@ -91,13 +104,15 @@ export default function Placeorder({ pages }) {
       const orderData = await res.json();
 
       if (orderData.error) {
+        setLoading(false);
         setErrMessage(orderData.error.message);
       }
       if (orderData.response) {
-        router.push(`/order/${orderData.response.id}`);
+        //router.push(`/order/${orderData.response.id}`);
         setErrMessage("");
-        dispatch({ type: "CLEAR_CARITEMS" });
-        dispatch({ type: "ORDER_COMPLEATE" });
+        // dispatch({ type: "CLEAR_CARITEMS" });
+        //dispatch({ type: "ORDER_COMPLEATE" });
+        setLoading(false);
       }
     } else {
       router.push("/login?redirect=/placeorder");
@@ -140,7 +155,7 @@ export default function Placeorder({ pages }) {
                   <th>{t("placeorder:color")}</th>
                   <th>{t("placeorder:size")}</th>
                   <th>{t("placeorder:price")}</th>
-                  <th>{t("placeorder:offer")}</th>
+                  <th className="w-28">{t("placeorder:offer")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -168,11 +183,21 @@ export default function Placeorder({ pages }) {
                     </td>
                     <td>{item.color}</td>
                     <td>{item.size}</td>
-                    <td className="text-gray-400 line-through">
+                    <td
+                      className={`text-gray-400 ${
+                        item.offer > 0 && "line-through"
+                      }  `}
+                    >
                       ${item.price}
                     </td>
                     <td className="text-secondary">
-                      ${item.offer ? item.offer : 0}
+                      {item.offer > 0 && <div>${item.offer} </div>}
+                      {item.numberInStock <= 0 && (
+                        <div className="text-wrap text-error">
+                          this product <br />
+                          is out of stock
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -206,10 +231,11 @@ export default function Placeorder({ pages }) {
               <div className="text-secondary">${totalCost}</div>
             </div>
             <button
+              disabled={loading}
               onClick={() => handleOrder()}
               className="w-full bg-primary text-white uppercase my-4 py-2"
             >
-              {t("placeorder:order")}
+              {loading ? t("common:loading") : t("placeorder:order")}
             </button>
             <Link href={`/payment`} passHref>
               <a>
