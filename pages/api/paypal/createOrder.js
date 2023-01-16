@@ -46,7 +46,8 @@ export default async function handle(req, res) {
         total +
         data?.data?.attributes.shippingCost +
         data?.data?.attributes.texCost;
-
+console.log("total",total)
+console.log("total cost",totalCost)
       //create purchase_units
       order = {
         intent: "CAPTURE",
@@ -55,7 +56,7 @@ export default async function handle(req, res) {
             amount: {
               currency_code: "USD",
               value: totalCost,
-              breakdown: {
+             /* breakdown: {
                 item_total: { value: total, currency_code: "USD" },
                 tax_total: {
                   value: data?.data?.attributes.texCost,
@@ -65,9 +66,9 @@ export default async function handle(req, res) {
                   value: data?.data?.attributes.shippingCost,
                   currency_code: "USD",
                 },
-              },
+              },*/
             },
-            items: data?.data?.attributes.orderProducts?.data.map((item) => ({
+           /* items: data?.data?.attributes.orderProducts?.data.map((item) => ({
               name: item.attributes.product.data.attributes.name,
               unit_amount: {
                 value:
@@ -80,21 +81,23 @@ export default async function handle(req, res) {
               },
               quantity: 1,
               sku: "haf001",
-            })),
+            })),*/
           },
         ],
       };
+
     } catch (error) {
       res.status(404).json({ message: error.message });
     }
     try {
       if (order) {
+        console.log("order",order)
         const PaypalClient = client();
         const request = new paypal.orders.OrdersCreateRequest();
         request.headers["prefer"] = "return=representation";
         request.requestBody(order);
-        console.log("request", request);
         const response = await PaypalClient.execute(request);
+        console.log("response", response);
         const orderID = response;
         res.status(201).json({ orderID: orderID.result.id });
       } else {

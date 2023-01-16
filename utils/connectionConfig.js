@@ -1,2 +1,2 @@
-export const API_URL = "http://localhost:1337";
+export const API_URL = "https://clothes-shop-strapi.onrender.com";
 //"https://clothes-shop-strapi.onrender.com"

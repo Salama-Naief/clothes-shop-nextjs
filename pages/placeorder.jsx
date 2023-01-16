@@ -108,7 +108,7 @@ export default function Placeorder({ pages }) {
         setErrMessage(orderData.error.message);
       }
       if (orderData.response) {
-        //router.push(`/order/${orderData.response.id}`);
+        router.push(`/order/${orderData.response.id}`);
         setErrMessage("");
         // dispatch({ type: "CLEAR_CARITEMS" });
         //dispatch({ type: "ORDER_COMPLEATE" });
@@ -148,24 +148,26 @@ export default function Placeorder({ pages }) {
                 <span className="mx-2 capitalize">{paymanetMethod}</span>
               </div>
             </div>
-            <table className="table-auto text-left w-full shadow my-4 px-4">
+            <table className="table-fixed text-left w-full shadow my-4 px-4">
               <thead className="border-b border-gray-400">
                 <tr className="">
+                  <th className="py-4 text-center"></th>
                   <th className="py-4 text-center">{t("placeorder:name")}</th>
-                  <th>{t("placeorder:color")}</th>
-                  <th>{t("placeorder:size")}</th>
-                  <th>{t("placeorder:price")}</th>
-                  <th className="w-28">{t("placeorder:offer")}</th>
+                  <th className="hidden md:table-cell">{t("placeorder:color")}</th>
+                  <th className="hidden md:table-cell">{t("placeorder:size")}</th>
+                  <th className="hidden md:table-cell">{t("placeorder:price")}</th>
+                  <th className="">quantity</th>
+                  <th className="hidden md:table-cell">{t("placeorder:offer")}</th>
                 </tr>
               </thead>
               <tbody>
                 {cartItems?.map((item, index) => (
-                  <tr key={index} className="border-b border-gray-400">
+                  <tr key={index} className="maz-w-1/5 border-b border-gray-400">
                     <td className="py-2">
                       <Link href={`/product/${item.slug}`}>
                         <a>
                           <div className="flex items-center">
-                            <div className="w-1/3 h-24 overflow-hidden relative bg-gray-100">
+                            <div className="w-24 h-24 mx-2 overflow-hidden relative bg-gray-100">
                               <Image
                                 src={
                                   item.productImg.data[0].attributes.formats
@@ -173,24 +175,27 @@ export default function Placeorder({ pages }) {
                                 }
                                 layout="fill"
                                 loading="eager"
+                                objectFit="contain"
+                                objectPosition="center"
                                 alt={item.productImg.data[0].attributes.name}
                               />
                             </div>
-                            <div className="mx-2 capitalize">{item.name}</div>
                           </div>
                         </a>
                       </Link>
                     </td>
-                    <td>{item.color}</td>
-                    <td>{item.size}</td>
+                    <td>{item.name}</td>
+                    <td className="hidden md:table-cell">{item.color}</td>
+                    <td className="hidden md:table-cell">{item.size}</td>
                     <td
                       className={`text-gray-400 ${
                         item.offer > 0 && "line-through"
-                      }  `}
-                    >
+                      } hidden md:table-cell `}
+                      >
                       ${item.price}
                     </td>
-                    <td className="text-secondary">
+                      <td>{item.quantity}</td>
+                    <td className="text-secondary hidden md:table-cell">
                       {item.offer > 0 && <div>${item.offer} </div>}
                       {item.numberInStock <= 0 && (
                         <div className="text-wrap text-error">
@@ -233,7 +238,7 @@ export default function Placeorder({ pages }) {
             <button
               disabled={loading}
               onClick={() => handleOrder()}
-              className="w-full bg-primary text-white uppercase my-4 py-2"
+              className={`w-full bg-primary text-white uppercase my-4 py-2 ${loading&&"cursor-wait"}`}
             >
               {loading ? t("common:loading") : t("placeorder:order")}
             </button>

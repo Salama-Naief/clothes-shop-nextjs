@@ -50,7 +50,7 @@ function ProductCard({ product, porductId }) {
             </div>
             <Link href={`/product/${product.slug}`}>
               <a>
-                <div className="py-2"> {product.smDisc}</div>
+                <div className="py-2 truncate"> {product.smDisc}</div>
                 <div className=" flex justify-between">
                   <div
                     className={`font-medium md:font-bold pb-2 ${

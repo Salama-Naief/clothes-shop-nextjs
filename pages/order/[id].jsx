@@ -11,9 +11,11 @@ import Stipper from "../../components/payments/Stipper";
 import { API_URL } from "../../utils/connectionConfig";
 import ReactDOM from "react-dom";
 import getStripe from "../../lib/get-stripe";
+import { Store } from "../../utils/Store";
 
 export default function Order({ order, pages, errMsg }) {
   const router = useRouter();
+  const { state } = useContext(Store);
   const { t } = useTranslation();
   const [errMessage, setErrMessage] = useState("");
   const [pay, setPay] = useState(true);
@@ -57,7 +59,7 @@ export default function Order({ order, pages, errMsg }) {
         currency: "usd",
         product_data: {
           images: item.attributes.product.data.attributes.productImg.data.map(
-            (img) => `${API_URL}/img.attributes.url`
+            (img) => img.attributes.url
           ),
           name: item.attributes.product.data.attributes.name,
           description: item.attributes.product.data.attributes.description,
@@ -91,13 +93,38 @@ export default function Order({ order, pages, errMsg }) {
   const onApprove = async (data) => {
     console.log("response data", data);
     const res = await axios.post("/api/paypal/captureOrder", data);
-    console.log("response ffff===>", res);
+    try{
+      const order={
+        data:{
+          isPayed:true,
+      payedAt:new Date()
+        }
+      }
+      const res = await fetch(`${API_URL}/api/orders/${order.id}`, {
+        method: "PUT",
+        headers: {
+          accept: "application/json",
+          "Content-type": "application/json",
+          authorization: `Bearer ${state.user.jwt}`,
+        },
+        body: JSON.stringify(order),
+      });
+
+      const orderData = await res.json();
+    
+    console.log("order updated Data",orderData)
+  }catch(e){
+    console.log(e)
+  }
     return res;
   };
 
+ 
+    
   console.log("orderProducts?.data", order);
   return (
     <Layout title={"order page"} pages={pages}>
+  
       {errMsg ? (
         <div className="w-full h-full flex justify-center items-center text-xl text-error">
           {t("common:beckend_error")}
@@ -156,31 +183,35 @@ export default function Order({ order, pages, errMsg }) {
                   </span>
                   <div className="my-4 text-sm">
                     {t("placeorder:status")}:
+                    {
+                      order.attributes.isPayed? 
+                      <span className="text-green-500">payed</span>
+                      :
                     <span className="text-error capitalize">
                       {t("placeorder:not_payed_yet")}
                     </span>
+                    }
                   </div>
                 </div>
               </div>
               <table className="table-auto text-left w-full shadow my-4 px-4">
                 <thead className="border-b border-gray-400">
                   <tr className="">
+                    <th className="py-4 text-center"></th>
                     <th className="py-4 text-center">{t("placeorder:name")}</th>
                     <th>{t("placeorder:quantity")}</th>
-                    <th>{t("placeorder:color")}</th>
-                    <th>{t("placeorder:size")}</th>
-                    <th>{t("placeorder:price")}</th>
-                    <th>{t("placeorder:offer")}</th>
+                    <th className="hidden md:table-cell">{t("placeorder:color")}</th>
+                    <th className="hidden md:table-cell">{t("placeorder:size")}</th>
+                    <th className="hidden md:table-cell">{t("placeorder:price")}</th>
+                    <th className="hidden md:table-cell">{t("placeorder:offer")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {order?.attributes.orderProducts?.data?.map((item) => (
                     <tr key={item.id} className="border-b border-gray-400">
                       <td className="py-2">
-                        <Link href={`/product/${"item.slug"}`}>
-                          <a>
                             <div className="flex items-center">
-                              <div className="w-1/3 h-24 overflow-hidden relative bg-gray-100">
+                              <div className="w-24 h-24 overflow-hidden relative bg-gray-100">
                                 <Image
                                   src={
                                     item.attributes.product.data.attributes
@@ -194,27 +225,29 @@ export default function Order({ order, pages, errMsg }) {
                                   objectPosition="center"
                                 />
                               </div>
-                              <div className="mx-2 capitalize">
-                                {item.attributes.name}
-                              </div>
                             </div>
+                      </td>
+                      <td className="mx-2 capitalize">
+                        <Link href={`/product/${item.attributes.slug}`}>
+                        <a>
+                                {item.attributes.name}
                           </a>
-                        </Link>
+                          </Link>
                       </td>
                       <td>{item.attributes.quantity}</td>
-                      <td>{item.attributes.product.data.attributes.color}</td>
-                      <td>{item.attributes.product.data.attributes.size}</td>
+                      <td className="hidden md:table-cell">{item.attributes.product.data.attributes.color}</td>
+                      <td className="hidden md:table-cell">{item.attributes.product.data.attributes.size}</td>
                       <td
                         className={`${
                           item.attributes.product.data.attributes.offer > 0
                             ? "text-gray-400 line-through"
                             : "text-gray-900"
-                        } `}
+                        } hidden md:table-cell`}
                       >
                         ${item.attributes.product.data.attributes.price}
                       </td>
                       {item.attributes.product.data.attributes.offer > 0 && (
-                        <td className="text-secondary">
+                        <td className="text-secondary hidden md:table-cell">
                           $
                           {item.attributes.product.data.attributes.offer
                             ? item.attributes.product.data.attributes.offer
@@ -253,16 +286,21 @@ export default function Order({ order, pages, errMsg }) {
               </div>
 
               <div>
+                {order.attributes.paymentMethod==="stripe"?
                 <button
-                  onClick={() => handlePayment()}
-                  className="w-full bg-primary text-white uppercase my-4 py-2"
+                onClick={() => handlePayment()}
+                className="w-full bg-primary text-white uppercase my-4 py-2"
                 >
                   {t("placeorder:pay")}
                 </button>
+                  :order.attributes.paymentMethod==="paypal"?
                 <PayPalButtons
-                  createOrder={createPayPalOrder}
-                  onApprove={onApprove}
+                createOrder={createPayPalOrder}
+                onApprove={onApprove}
                 />
+                :null
+                
+              }
                 <Link href={`/payment`} passHref>
                   <a>
                     <div className="w-full text-center bg-gray-50 text-gray-900 uppercase  py-2 border border-secondary">

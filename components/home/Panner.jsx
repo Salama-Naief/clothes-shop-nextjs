@@ -42,7 +42,7 @@ const Panner = ({ carousal }) => {
                   alt=""
                 />
               </div>
-              <div className="absolute z-20 w-fit  md:w-max max-h-fit bg-white p-2 md:p-4 bottom-2 md:inset-y-1/4 right-5 md:inset-x-1/2">
+              <div className="absolute z-20 max-w-xl  md:w-max max-h-fit bg-white p-2 md:p-4 bottom-2 md:inset-y-1/4 right-5 md:inset-x-1/2">
                 <div className="border-2 border-gray-400 p-4 md:px-16 md:py-12 text-center">
                   <div className="text-gray-900 md:text-2xl capitalize">
                     {item.attributes.subTitle}

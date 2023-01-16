@@ -20,7 +20,7 @@ export default async function handle(req, res) {
       }
 
       console.log("capture", response.result);
-      //const {data}=await axios.put(`${API_URL}/api/products/`)
+     
       res.json({ ...response.result });
     } catch (error) {
       res.json({ errMsg: error.message });

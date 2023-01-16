@@ -1,18 +1,31 @@
 import axios from "axios";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useTranslation } from "next-i18next";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import Layout from "../components/Layout";
 import { API_URL } from "../utils/connectionConfig";
+import { Store } from "../utils/Store";
+import { useEffect } from "react";
+import { useRouter } from "next/router";
 export default function Register({ pages }) {
+
+  const { state, dispatch } = useContext(Store);
   const { t, i18n } = useTranslation();
   const [email, setEmail] = useState("");
+  const router=useRouter()
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [errMsg, setErrMsg] = useState("");
   const [loading, setLoading] = useState(false);
 
+  useEffect(()=>{
+    if(state.user){
+      router.push("/")
+    }
+  },[state.user])
+
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -33,16 +46,18 @@ export default function Register({ pages }) {
         body: JSON.stringify(user),
       });
       const registerUser = await res.json();
+      console.log("register",registerUser)
       if (registerUser.error) {
         setErrMsg(registerUser.error.message);
         setLoading(false);
       } else {
-        dispatch({ type: "USER_LOGIN", payload: loginUser });
+        dispatch({ type: "USER_LOGIN", payload: registerUser });
         setErrMsg("");
         setLoading(false);
       }
     } catch (err) {
       setErrMsg("error in server connection");
+      setLoading(false)
     }
   };
   return (
